@@ -1,0 +1,10 @@
+{
+  "name": "@mitranim/ur",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./ur.mjs",
+  "description": "Better URL and query implementation for JS. Like built-in URL but actually usable.",
+  "keywords": ["url", "query"],
+  "repository": {"type": "git", "url": "git://github.com/mitranim/ur.git"},
+  "license": "Unlicense"
+}
