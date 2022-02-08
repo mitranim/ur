@@ -197,6 +197,24 @@ class Url {
   setOrigin       (val?: string): Url
   setHref         (val?: string): Url
 
+  // All of these return a clone with the corresponding property updated.
+  withScheme       (val?: string): Url
+  withSlash        (val?: string): Url
+  withUsername     (val?: string): Url
+  withPassword     (val?: string): Url
+  withHostname     (val?: string): Url
+  withPort         (val?: number | string): Url
+  withPathname     (val?: string): Url
+  withSearch       (val?: string): Url
+  withSearchParams (val?: SearchLike): Url
+  withQuery        (val?: SearchLike): Url
+  withHash         (val?: string): Url
+  withHashExact    (val?: string): Url
+  withProtocol     (val?: string): Url
+  withHost         (val?: string): Url
+  withOrigin       (val?: string): Url
+  withHref         (val?: string): Url
+
   // Replace `.pathname` with slash-separated segments.
   // Empty or non-stringable segments cause an exception.
   setPath(...vals: StrLike[]): Url
