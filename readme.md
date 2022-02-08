@@ -86,14 +86,14 @@ Various issues:
 
 * Carefully tuned using [benchmarks](ur_bench.mjs).
 * Uses various optimizations such as lazy query parsing, string caching, structural copying instead of reparsing.
-* Seems to perform significantly better than corresponding built-ins in Deno 1.17 / V8 9.7+.
+* Many operations seem to perform significantly better than corresponding built-ins in Deno 1.17 / V8 9.7+.
 
 ## Usage
 
 In browsers and Deno, import by URL:
 
 ```js
-import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.2/ur.mjs'
+import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.3/ur.mjs'
 ```
 
 When using Node or NPM-oriented bundlers like Esbuild:

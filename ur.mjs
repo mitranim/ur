@@ -132,18 +132,15 @@ export class Search extends Map {
   decode(val) {
     for (val of split(val, `&`)) {
       const ind = val.indexOf(`=`)
-      this.append(
-        decodeURIComponent(val.slice(0, ind)),
-        decodeURIComponent(val.slice(ind + 1)),
-      )
+      this.append(urlDecode(val.slice(0, ind)), urlDecode(val.slice(ind + 1)))
     }
   }
 
   encode() {
     let out = ``
     for (let [key, val] of super.entries()) {
-      key = encodeURIComponent(key)
-      for (val of val) out += `${out && `&`}${key}=${encodeURIComponent(val)}`
+      key = urlEncode(key)
+      for (val of val) out += `${out && `&`}${key}=${urlEncode(val)}`
     }
     return out
   }
@@ -622,3 +619,7 @@ function showObj(val) {
 function get(val, key) {return isComp(val) && key in val ? val[key] : undefined}
 function getCon(val) {return get(val, `constructor`)}
 function getName(val) {return get(val, `name`)}
+
+// Needs optimization. This is currently our bottleneck.
+function urlDecode(val) {return decodeURIComponent(val.replace(/[+]/g, ` `))}
+function urlEncode(val) {return encodeURIComponent(val).replace(/%20/g, `+`)}

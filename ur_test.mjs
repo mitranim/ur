@@ -123,6 +123,10 @@ t.test(function test_Search() {
         nine: [`ten`, `eleven`],
       })
     )
+
+    t.test(function test_plus_decoding() {
+      test(`one+two=three+four++five`, new u.Search({'one two': `three four  five`}))
+    })
   })
 
   t.test(function test_encoding() {
@@ -148,6 +152,10 @@ t.test(function test_Search() {
       testStr(u.search().append(`key`, val), `key=1970-01-01T00%3A00%3A01.024Z`)
       testStr(u.search({key: val}), `key=1970-01-01T00%3A00%3A01.024Z`)
       testStr(u.search([[`key`, val]]), `key=1970-01-01T00%3A00%3A01.024Z`)
+    })
+
+    t.test(function test_plus_encoding() {
+      testStr(u.search().append(`one two`, `three four  five`), `one+two=three+four++five`)
     })
   })
 
