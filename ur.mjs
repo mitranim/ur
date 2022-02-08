@@ -207,14 +207,7 @@ export class Url {
   }
 
   get scheme() {return this[schemeKey]}
-
-  set scheme(val) {
-    if (!(this[schemeKey] = toScheme(val))) {
-      this[slashKey] = ``
-      this[hostnameKey] = ``
-      this[portKey] = ``
-    }
-  }
+  set scheme(val) {if (!(this[schemeKey] = toScheme(val))) this.slash = ``}
 
   get slash() {return this[slashKey]}
 
@@ -277,10 +270,13 @@ export class Url {
     const gr = reqGroups(val, RE_ORIGIN, `origin`)
     this[hostnameKey] = str(gr.hostname)
     this[portKey] = str(gr.port)
+    this.username = str(gr.username)
+    this.password = str(gr.password)
     this.slash = str(gr.slash)
     this.scheme = str(gr.scheme)
   }
 
+  // TODO: when scheme or slash is missing, auth and host should be excluded.
   get href() {return `${this.protocol}${this.authFull()}${this.hostPath()}${this.searchFull()}${this.hashFull()}`}
   set href(val) {this.mut(val)}
 
@@ -301,6 +297,30 @@ export class Url {
   setHost(val) {return this.host = val, this}
   setOrigin(val) {return this.origin = val, this}
   setHref(val) {return this.href = val, this}
+
+  withScheme(val) {return this.clone().setScheme(val)}
+  withSlash(val) {return this.clone().setSlash(val)}
+  withUsername(val) {return this.clone().setUsername(val)}
+  withPassword(val) {return this.clone().setPassword(val)}
+  withHostname(val) {return this.clone().setHostname(val)}
+  withPort(val) {return this.clone().setPort(val)}
+  withPathname(val) {return this.clone().setPathname(val)}
+  withSearch(val) {return this.withSearchParams(val)}
+  withSearchParams(val) {return this.withoutSearchParams().setQuery(val)}
+  withQuery(val) {return this.withSearchParams(val)}
+  withHash(val) {return this.clone().setHash(val)}
+  withHashExact(val) {return this.clone().setHashExact(val)}
+  withProtocol(val) {return this.clone().setProtocol(val)}
+  withHost(val) {return this.clone().setHost(val)}
+  withOrigin(val) {return this.clone().setOrigin(val)}
+  withHref(val) {return this.clone().setHref(val)}
+
+  withoutSearchParams() {
+    const val = this[searchParamsKey]
+    this[searchParamsKey] = undefined
+    try {return this.clone()}
+    finally {this[searchParamsKey] = val}
+  }
 
   schemeFull() {return optSuf(this[schemeKey], `:`)}
   portFull() {return optPre(this[portKey], `:`)}

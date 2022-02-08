@@ -2,6 +2,8 @@ import 'https://cdn.jsdelivr.net/npm/@mitranim/test@0.1.2/emptty.mjs'
 import * as t from 'https://cdn.jsdelivr.net/npm/@mitranim/test@0.1.2/test.mjs'
 import * as u from './ur.mjs'
 
+const LONG = `scheme://user:pass@host:123/path?key=val#hash`
+
 t.test(function test_stripPre() {
   function test(src, pre, exp) {t.is(u.stripPre(src, pre), exp)}
 
@@ -589,6 +591,7 @@ t.test(function test_Url() {
     test(`one://two.three/four`, `one`)
   })
 
+  // TODO validate that username and password get updated.
   t.test(function test_setScheme() {
     function test(src, val, exp) {testStr(u.url(src).setScheme(val), exp)}
 
@@ -616,6 +619,7 @@ t.test(function test_Url() {
     test(`one://two`, `//`)
   })
 
+  // TODO validate that username and password get updated.
   t.test(function test_setSlash() {
     function test(src, val, exp) {testStr(u.url(src).setSlash(val), exp)}
 
@@ -1091,6 +1095,7 @@ t.test(function test_Url() {
     test(`one:two.three:123/four/five`, ``)
   })
 
+  // TODO validate that username and password get updated.
   t.test(function test_setOrigin() {
     t.throws(() => u.url().setOrigin(10), TypeError, `expected 10 to satisfy test isStr`)
     t.throws(() => u.url().setOrigin(`/`), SyntaxError, `unable to decode "/" as origin`)
@@ -1405,6 +1410,98 @@ t.test(function test_Url() {
       test(`scheme://host/`, [`one`, `two`], `scheme://host/one/two`)
       test(`scheme://host/`, [`/one`, `two`], `scheme://host/one/two`)
     })
+  })
+
+  // TODO validate no mutation of source reference.
+  t.test(function test_withScheme() {
+    testStr(u.url(LONG).withScheme(``), `/path?key=val#hash`)
+    testStr(u.url(LONG).withScheme(`one`), `one://user:pass@host:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withSlash() {
+    testStr(u.url(LONG).withSlash(``), `scheme:/path?key=val#hash`)
+    testStr(u.url(LONG).withSlash(`/`), `scheme:/user:pass@host:123/path?key=val#hash`)
+    testStr(u.url(LONG).withSlash(`//`), `scheme://user:pass@host:123/path?key=val#hash`)
+    testStr(u.url(LONG).withSlash(`///`), `scheme:///user:pass@host:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withUsername() {
+    testStr(u.url(LONG).withUsername(``), `scheme://:pass@host:123/path?key=val#hash`)
+    testStr(u.url(LONG).withUsername(`username`), `scheme://username:pass@host:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withPassword() {
+    testStr(u.url(LONG).withPassword(``), `scheme://user@host:123/path?key=val#hash`)
+    testStr(u.url(LONG).withPassword(`password`), `scheme://user:password@host:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withHostname() {
+    testStr(u.url(LONG).withHostname(``), `scheme://user:pass@/path?key=val#hash`)
+    testStr(u.url(LONG).withHostname(`hostname`), `scheme://user:pass@hostname:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withPort() {
+    testStr(u.url(LONG).withPort(``), `scheme://user:pass@host/path?key=val#hash`)
+    testStr(u.url(LONG).withPort(`234`), `scheme://user:pass@host:234/path?key=val#hash`)
+  })
+
+  t.test(function test_withPathname() {
+    testStr(u.url(LONG).withPathname(``), `scheme://user:pass@host:123?key=val#hash`)
+    testStr(u.url(LONG).withPathname(`pathname`), `scheme://user:pass@host:123/pathname?key=val#hash`)
+  })
+
+  t.test(function test_withSearch() {
+    testStr(u.url(LONG).withSearch(``), `scheme://user:pass@host:123/path#hash`)
+    testStr(u.url(LONG).withSearch(`one=two`), `scheme://user:pass@host:123/path?one=two#hash`)
+  })
+
+  t.test(function test_withSearchParams() {
+    testStr(u.url(LONG).withSearchParams(``), `scheme://user:pass@host:123/path#hash`)
+    testStr(u.url(LONG).withSearchParams(`one=two`), `scheme://user:pass@host:123/path?one=two#hash`)
+  })
+
+  t.test(function test_withQuery() {
+    testStr(u.url(LONG).withQuery(``), `scheme://user:pass@host:123/path#hash`)
+    testStr(u.url(LONG).withQuery(`one=two`), `scheme://user:pass@host:123/path?one=two#hash`)
+  })
+
+  t.test(function test_withHash() {
+    testStr(u.url(LONG).withHash(``), `scheme://user:pass@host:123/path?key=val`)
+    testStr(u.url(LONG).withHash(`hashname`), `scheme://user:pass@host:123/path?key=val#hashname`)
+    testStr(u.url(LONG).withHash(`#hashname`), `scheme://user:pass@host:123/path?key=val#hashname`)
+  })
+
+  t.test(function test_withHashExact() {
+    testStr(u.url(LONG).withHashExact(``), `scheme://user:pass@host:123/path?key=val`)
+    testStr(u.url(LONG).withHashExact(`hashname`), `scheme://user:pass@host:123/path?key=val#hashname`)
+    testStr(u.url(LONG).withHashExact(`#hashname`), `scheme://user:pass@host:123/path?key=val##hashname`)
+  })
+
+  t.test(function test_withProtocol() {
+    testStr(u.url(LONG).withProtocol(``), `/path?key=val#hash`)
+    testStr(u.url(LONG).withProtocol(`one:`), `one:/path?key=val#hash`)
+    testStr(u.url(LONG).withProtocol(`one://`), `one://user:pass@host:123/path?key=val#hash`)
+  })
+
+  t.test(function test_withHost() {
+    testStr(u.url(LONG).withHost(``), `scheme://user:pass@/path?key=val#hash`)
+    testStr(u.url(LONG).withHost(`hostname`), `scheme://user:pass@hostname/path?key=val#hash`)
+    testStr(u.url(LONG).withHost(`hostname:234`), `scheme://user:pass@hostname:234/path?key=val#hash`)
+    testStr(u.url(LONG).withHost(`:234`), `scheme://user:pass@/path?key=val#hash`)
+  })
+
+  t.test(function test_withOrigin() {
+    testStr(u.url(LONG).withOrigin(``), `/path?key=val#hash`)
+    testStr(u.url(LONG).withOrigin(`one:`), `one:/path?key=val#hash`)
+    testStr(u.url(LONG).withOrigin(`one://`), `one:///path?key=val#hash`)
+    testStr(u.url(LONG).withOrigin(`one://hostname`), `one://hostname/path?key=val#hash`)
+    testStr(u.url(LONG).withOrigin(`one://username:password@hostname`), `one://username:password@hostname/path?key=val#hash`)
+    testStr(u.url(LONG).withOrigin(`one://username:password@hostname:234`), `one://username:password@hostname:234/path?key=val#hash`)
+  })
+
+  t.test(function test_withHref() {
+    testStr(u.url(LONG).withHref(``), ``)
+    testStr(u.url(LONG).withHref(`one://two.three`), `one://two.three`)
   })
 
   t.test(function test_toJSON() {
