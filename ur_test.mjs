@@ -125,7 +125,10 @@ t.test(function test_Search() {
     )
 
     t.test(function test_plus_decoding() {
-      test(`one+two=three+four++five`, new u.Search({'one two': `three four  five`}))
+      test(
+        `one+two=three+four++five`,
+        new u.Search({'one two': `three four  five`}),
+      )
     })
   })
 
@@ -155,7 +158,10 @@ t.test(function test_Search() {
     })
 
     t.test(function test_plus_encoding() {
-      testStr(u.search().append(`one two`, `three four  five`), `one+two=three+four++five`)
+      testStr(
+        u.search().append(`one two`, `three four  five`),
+        `one+two=three+four++five`,
+      )
     })
   })
 

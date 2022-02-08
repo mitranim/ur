@@ -93,7 +93,7 @@ Various issues:
 In browsers and Deno, import by URL:
 
 ```js
-import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.3/ur.mjs'
+import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.4/ur.mjs'
 ```
 
 When using Node or NPM-oriented bundlers like Esbuild:

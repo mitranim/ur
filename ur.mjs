@@ -621,5 +621,14 @@ function getCon(val) {return get(val, `constructor`)}
 function getName(val) {return get(val, `name`)}
 
 // Needs optimization. This is currently our bottleneck.
-function urlDecode(val) {return decodeURIComponent(val.replace(/[+]/g, ` `))}
-function urlEncode(val) {return encodeURIComponent(val).replace(/%20/g, `+`)}
+function urlDecode(val) {
+  if (val.includes(`+`)) val = val.replace(/[+]/g, ` `)
+  return decodeURIComponent(val)
+}
+
+// Needs optimization. This is currently one of our bottlenecks.
+function urlEncode(val) {
+  val = encodeURIComponent(val)
+  if (val.includes(`%20`)) val = val.replace(/%20/g, `+`)
+  return val
+}
