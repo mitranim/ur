@@ -140,6 +140,13 @@ t.test(function test_Search() {
     test(`?`, ``)
     test(`??`, ``)
     test(`??one=two`, `one=two`)
+
+    t.test(function test_date_encoding() {
+      const val = new Date(1024)
+      testStr(u.search().append(`key`, val), `key=1970-01-01T00%3A00%3A01.024Z`)
+      testStr(u.search({key: val}), `key=1970-01-01T00%3A00%3A01.024Z`)
+      testStr(u.search([[`key`, val]]), `key=1970-01-01T00%3A00%3A01.024Z`)
+    })
   })
 
   t.test(function test_toStringFull() {
@@ -475,6 +482,25 @@ t.test(function test_Search() {
     t.is(Object.getPrototypeOf(u.search().dict()), null)
 
     function test(src, exp) {t.eq(u.search(src).dict(), exp)}
+
+    test(undefined, {})
+
+    test(
+      `one=two&one=three&four=five&five=six&seven=eight&nine=ten&nine=eleven`,
+      {
+        one: `two`,
+        four: `five`,
+        five: `six`,
+        seven: `eight`,
+        nine: `ten`,
+      },
+    )
+  })
+
+  t.test(function test_dictAll() {
+    t.is(Object.getPrototypeOf(u.search().dictAll()), null)
+
+    function test(src, exp) {t.eq(u.search(src).dictAll(), exp)}
 
     test(undefined, {})
 
@@ -1239,6 +1265,54 @@ t.test(function test_Url() {
     test(`scheme://host/path`, `host/path`)
     test(`scheme://host/path?key=val#hash`, `host/path`)
     test(`scheme://host:123/path?key=val#hash`, `host:123/path`)
+  })
+
+  t.test(function test_auth() {
+    function test(src, exp) {t.is(u.url(src).auth(), exp)}
+    testEmpty(test)
+
+    test(`scheme:`, ``)
+    test(`scheme:one:two@three`, ``)
+
+    test(`scheme://`, ``)
+    test(`scheme://host`, ``)
+    test(`scheme://@host`, ``)
+    test(`scheme://:@host`, ``)
+    test(`scheme://user:pass@host`, `user:pass`)
+    test(`scheme://user@host`, `user`)
+    test(`scheme://:pass@host`, `:pass`)
+  })
+
+  t.test(function test_authFull() {
+    function test(src, exp) {t.is(u.url(src).authFull(), exp)}
+    testEmpty(test)
+
+    test(`scheme:`, ``)
+    test(`scheme:one:two@three`, ``)
+
+    test(`scheme://`, ``)
+    test(`scheme://host`, ``)
+    test(`scheme://@host`, ``)
+    test(`scheme://:@host`, ``)
+    test(`scheme://user:pass@host`, `user:pass@`)
+    test(`scheme://user@host`, `user@`)
+    test(`scheme://:pass@host`, `:pass@`)
+  })
+
+  t.test(function test_rel() {
+    function test(src, exp) {t.is(u.url(src).rel(), exp)}
+    testEmpty(test)
+
+    test(`scheme:`, ``)
+    test(`scheme:path`, `path`)
+    test(`scheme:/path`, `/path`)
+    test(`scheme:/path?key=val#hash`, `/path?key=val#hash`)
+
+    test(`scheme://`, ``)
+    test(`scheme://host`, ``)
+    test(`scheme://host?key=val#hash`, `?key=val#hash`)
+    test(`scheme://host/path`, `/path`)
+    test(`scheme://host/path?key=val#hash`, `/path?key=val#hash`)
   })
 
   // Delegates to `.addPath`. This is mostly a sanity check.

@@ -93,7 +93,7 @@ Various issues:
 In browsers and Deno, import by URL:
 
 ```js
-import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.0/ur.mjs'
+import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.1/ur.mjs'
 ```
 
 When using Node or NPM-oriented bundlers like Esbuild:
@@ -111,7 +111,8 @@ url.pathname         // '/path'
 url.search           // 'key=val'
 url.hash             // 'hash'
 url.query.get(`key`) // 'val'
-url.query.dict()     // {key: ['val']}
+url.query.dict()     // {key: 'val'}
+url.query.dictAll()  // {key: ['val']}
 ```
 
 Example segmented path:
@@ -226,9 +227,10 @@ class Url {
   // As a special case, empty url is considered null.
   toJSON(): string | null
 
-  // Same as `.href`. This object may be considered a "scalar",
-  // equivalent to a string in some contexts.
+  // All of these are equivalent to `.toString()`. This object may be considered
+  // a primitive/scalar, equivalent to a string in some contexts.
   valueOf(): string
+  [Symbol.toPrimitive](hint?: string): string
 
   // Class used internally for instantiating `.searchParams`.
   // Can override in subclass.
@@ -253,7 +255,8 @@ Like [`URLSearchParams`](https://developer.mozilla.org/en-US/docs/Web/API/URLSea
 ```ts
 type StrLike          = boolean | number | string
 type SearchDictLax    = Record<string, string | string[]>
-type SearchDictStrict = Record<string, string[]>
+type SearchDictSingle = Record<string, string>
+type SearchDictMulti  = Record<string, string[]>
 type SearchLike       = string | Search | URLSearchParams | SearchDictLax
 
 class Search extends Map<string, string[]> {
@@ -294,7 +297,8 @@ class Search extends Map<string, string[]> {
   fin(key?: string): number | undefined
 
   // Conversion to a traditional "query dictionary".
-  dict(): SearchDictStrict
+  dict(): SearchDictSingle
+  dictAll(): SearchDictMulti
 
   // Returns a cloned version.
   // Future mutations are not shared.

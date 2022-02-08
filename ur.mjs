@@ -166,7 +166,18 @@ export class Search extends Map {
     return this
   }
 
-  dict() {return zip(this.entries())}
+  dict() {
+    const out = Object.create(null)
+    for (const [key, val] of this.entries()) if (val.length) out[key] = val[0]
+    return out
+  }
+
+  dictAll() {
+    const out = Object.create(null)
+    for (const [key, val] of this.entries()) out[key] = val
+    return out
+  }
+
   clone() {return new this.constructor(this)}
   toStringFull() {return optPre(this.toString(), `?`)}
   toString() {return this.restring().str}
@@ -300,6 +311,7 @@ export class Url {
   hostPath() {return inter(this.host, `/`, this.pathname)}
   auth() {return this.username + optPre(this.password, `:`)}
   authFull() {return optSuf(this.auth(), `@`)}
+  rel() {return this.pathname + this.searchFull() + this.hashFull()}
 
   setPath(...vals) {return this.setPathname().addPath(...vals)}
   addPath(...vals) {return vals.forEach(this.addSeg, this), this}
@@ -382,6 +394,7 @@ export class Url {
 
   get Search() {return Search}
   get [Symbol.toStringTag]() {return this.constructor.name}
+  [Symbol.toPrimitive]() {return this.toString()}
 
   static join(val, ...vals) {return new this(val).setPath(...vals)}
 }
@@ -451,13 +464,6 @@ function split(src, val) {
 function decodeBool(val) {return val === `true` ? true : val === `false` ? false : undefined}
 function decodeInt(val) {return only(Number.parseInt(str(val)), isInt)}
 function decodeFin(val) {return only(Number.parseFloat(str(val)), isFin)}
-
-// Note: `Object.fromEntries` is not null-prototype.
-function zip(src) {
-  const out = Object.create(null)
-  for (const [key, val] of src) out[key] = val
-  return out
-}
 
 function toScheme(val) {return toStrWith(val, RE_SCHEME, `scheme`)}
 function toSlash(val) {return toStrWith(val, RE_SLASH, `slash`)}
@@ -538,6 +544,10 @@ function isInst(val, cls) {
   return isObj(val) && val instanceof cls
 }
 
+export function isUrlLike(val) {
+  return isStr(val) || isURL(val) || isUrl(val) || isLoc(val)
+}
+
 function hasMeth(val, key) {return isFun(get(val, key))}
 
 function req(val, fun) {
@@ -567,6 +577,7 @@ function str(val) {return isNil(val) ? `` : req(val, isStr)}
 
 function render(val) {
   if (isNil(val)) return ``
+  if (isInst(val, Date)) return val.toISOString()
   if (isScalar(val)) return val + ``
   throw errConvert(val, `string`)
 }
