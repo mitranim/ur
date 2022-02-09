@@ -234,14 +234,33 @@ t.test(function test_Search() {
     t.throws(() => u.search().set(`key`, {}), TypeError, `unable to convert {} to string`)
     t.throws(() => u.search().set(`key`, []), TypeError, `unable to convert [] to string`)
 
-    testStr(u.search().set(), ``)
-    testStr(u.search().set(null, `val`), ``)
+    testStr(u.search().set(undefined, undefined), ``)
+    testStr(u.search().set(null, undefined), ``)
+    testStr(u.search().set(undefined, null), ``)
+    testStr(u.search().set(null, null), ``)
 
-    testStr(u.search(`one=two`).set(), `one=two`)
+    testStr(u.search().set(undefined, ``), ``)
+    testStr(u.search().set(null, ``), ``)
+
+    testStr(u.search().set(``, undefined), ``)
+    testStr(u.search().set(``, null), ``)
+
+    testStr(u.search().set(``, ``), `=`)
+    testStr(u.search().set(``, `val`), `=val`)
+    testStr(u.search().set(`val`, ``), `val=`)
+
+    testStr(u.search().set(`key`, undefined), ``)
+    testStr(u.search().set(`key`, null), ``)
+    testStr(u.search().set(`key`, ``), `key=`)
+
+    testStr(u.search(`one=two`).set(undefined, undefined), `one=two`)
+    testStr(u.search(`one=two`).set(undefined, `val`), `one=two`)
     testStr(u.search(`one=two`).set(null, `val`), `one=two`)
 
-    testStr(u.search().set(``), `=`)
-    testStr(u.search().set(``, `one`), `=one`)
+    testStr(u.search(`one=two`).set(`one`, undefined), ``)
+    testStr(u.search(`one=two`).set(`one`, null), ``)
+    testStr(u.search(`one=two`).set(`one`, ``), `one=`)
+
     testStr(u.search().set(`one`, false), `one=false`)
     testStr(u.search().set(`one`, true), `one=true`)
     testStr(u.search().set(`one`, `two`), `one=two`)
@@ -287,7 +306,15 @@ t.test(function test_Search() {
 
   t.test(function test_setAny() {
     testStr(u.search().setAny(), ``)
-    testStr(u.search().setAny(`one`), `one=`)
+
+    testStr(u.search().setAny(`one`, undefined), ``)
+    testStr(u.search().setAny(`one`, null), ``)
+    testStr(u.search().setAny(`one`, []), ``)
+
+    testStr(u.search(`one=two`).setAny(`one`, undefined), ``)
+    testStr(u.search(`one=two`).setAny(`one`, null), ``)
+    testStr(u.search(`one=two`).setAny(`one`, []), ``)
+
     testStr(u.search().setAny(`one`, `two`), `one=two`)
     testStr(u.search().setAny(`one`, [`two`, `three`]), `one=two&one=three`)
     testStr(u.search(`one=two`).setAny(`one`, `three`), `one=three`)
@@ -297,9 +324,12 @@ t.test(function test_Search() {
 
   t.test(function test_append() {
     testStr(u.search().append(), ``)
+    testStr(u.search().append(undefined, `val`), ``)
     testStr(u.search().append(null, `val`), ``)
-    testStr(u.search().append(`one`), `one=`)
+
+    testStr(u.search().append(`one`), ``)
     testStr(u.search().append(`one`, `two`), `one=two`)
+
     testStr(u.search(`one=two`).append(`one`, `three`), `one=two&one=three`)
     testStr(u.search(`one=two`).append(`three`, `four`), `one=two&three=four`)
   })
@@ -324,9 +354,18 @@ t.test(function test_Search() {
 
   t.test(function test_appendAny() {
     testStr(u.search().appendAny(), ``)
-    testStr(u.search().appendAny(`one`), `one=`)
+
+    testStr(u.search().appendAny(``, undefined), ``)
+    testStr(u.search().appendAny(``, null), ``)
+    testStr(u.search().appendAny(``, ``), `=`)
+
+    testStr(u.search().appendAny(`one`, undefined), ``)
+    testStr(u.search().appendAny(`one`, null), ``)
+    testStr(u.search().appendAny(`one`, ``), `one=`)
+
     testStr(u.search().appendAny(`one`, `two`), `one=two`)
     testStr(u.search().appendAny(`one`, [`two`, `three`]), `one=two&one=three`)
+
     testStr(u.search(`one=two`).appendAny(`one`, `three`), `one=two&one=three`)
     testStr(u.search(`one=two`).appendAny(`three`, `four`), `one=two&three=four`)
     testStr(u.search(`one=two`).appendAny(`three`, [`four`, `five`]), `one=two&three=four&three=five`)

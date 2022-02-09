@@ -47,6 +47,7 @@ URL and query implementation for JS. Like built-in [`URL`](https://developer.moz
   * [#`class Url`](#class-url)
   * [#`class Search`](#class-search)
   * [#Undocumented](#undocumented)
+* [#Limitations](#limitations)
 * [#License](#license)
 * [#Misc](#misc)
 
@@ -71,7 +72,7 @@ Various issues:
 * No support for appending path segments, which is an _extremely_ common use case. WTF.
   * `new URL(<path>, <base>)` ***is not good enough***. It requires `<base>` to have an origin (real website links often don't), and works _only_ if path and base begin/end with the right amount of slashes, forcing app authors to write utility functions for stripping/appending/prepending slashes.
 * Made-up component `.protocol` is unusable.
-  * The URI standard defines "scheme" which _does not_ include `:` or `//`. The JS `URL` `.protocol` includes `:` but not `//`. This is the worst possible choice.
+  * The URI standard defines "scheme" which _does not_ include `:` or `//`. The JS `URL` lacks `.scheme`; its `.protocol` includes `:` but not `//`, which is the worst possible choice.
   * The lack of `//` makes it impossible to programmatically differentiate protocols like `http://` from protocols like `mailto:` without a special-case whitelist, which is of course _not exposed_ by this implementation. URLs are a general-purpose structured data format which is _extensible_, and custom protocols are frequently used. Special-case whitelists _should not be required_ for using your API, or at the very least they _must be exposed_.
   * The no-less-atrocious Go `net/url.URL` correctly uses a "scheme" field without `:`, but makes the same mistake of hiding the knowledge of whether the original string had `//` in its protocol.
 * `URLSearchParams` is nearly unusable:
@@ -94,7 +95,7 @@ Various issues:
 In browsers and Deno, import by URL:
 
 ```js
-import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.5/ur.mjs'
+import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.6/ur.mjs'
 ```
 
 When using Node or NPM-oriented bundlers like Esbuild:
@@ -372,6 +373,11 @@ new URLSearchParams(new u.Search(`one=two&one=three&four=five`))
 ### Undocumented
 
 Some APIs are exported but undocumented to avoid bloating the docs. Check the source files and look for `export`.
+
+## Limitations
+
+* `Url` lacks support for optional base URL. Constructor takes only 1 value.
+* `Search` iterates as `Map<string, string[]>`, not as `URLSearchParams`.
 
 ## License
 

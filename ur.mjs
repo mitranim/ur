@@ -37,6 +37,8 @@ export class Search extends Map {
 
   append(key, val) {
     if (!isStrOpt(key)) return this
+    if (isNil(val)) return this.delete(key), this
+
     val = render(val)
     this.restruct()
 
