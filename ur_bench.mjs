@@ -91,6 +91,14 @@ const mutSearchForUpdate = new u.Search(searchLong)
 t.bench(function bench_search_update_Params() {nop(mutParamsForUpdate.append(`one`, `two`))})
 t.bench(function bench_search_update_Query() {nop(mutSearchForUpdate.append(`one`, `two`))})
 
+t.bench(function bench_search_walk_Params() {
+  for (const [key, val] of decParamsLong) nop(key, val)
+})
+
+t.bench(function bench_search_walk_Search() {
+  for (const [key, val] of decSearchLong) nop(key, val)
+})
+
 t.bench(function bench_Url_mut_str() {nop(mutUrl.mut(urlLong))})
 t.bench(function bench_Url_mut_URL() {nop(mutUrl.mut(decURLLong))})
 t.bench(function bench_Url_mut_Url() {nop(mutUrl.mut(decUrlLong))})
@@ -116,12 +124,39 @@ t.bench(function bench_url_setPath() {nop(mutUrl.setPath(`one`, `two`, `three`))
 t.bench(function bench_url_set_pathname_encode() {nop(u.url().setPathname(`/one`).toString())})
 t.bench(function bench_url_set_search_encode() {nop(u.url().setSearch(`one=two`).toString())})
 t.bench(function bench_url_set_hash_encode() {nop(u.url().setHash(`#one`).toString())})
-t.bench(function bench_url_decode_set_pathname_encode() {nop(u.url(urlLong).setPathname(`/one`).toString())})
-t.bench(function bench_url_decode_set_search_encode() {nop(u.url(urlLong).setSearch(`one=two`).toString())})
-t.bench(function bench_url_decode_set_hash_encode() {nop(u.url(urlLong).setHash(`#one`).toString())})
+
+t.bench(function bench_url_decode_set_pathname_encode_with_URL() {
+  const val = new URL(urlLong)
+  val.pathname = `/one`
+  nop(val.toString())
+})
+
+t.bench(function bench_url_decode_set_search_encode_with_URL() {
+  const val = new URL(urlLong)
+  val.search = `one=two`
+  nop(val.toString())
+})
+
+t.bench(function bench_url_decode_set_hash_encode_with_URL() {
+  const val = new URL(urlLong)
+  val.hash = `one`
+  nop(val.toString())
+})
+
+t.bench(function bench_url_decode_set_pathname_encode_with_Url() {
+  nop(u.url(urlLong).setPathname(`/one`).toString())
+})
+
+t.bench(function bench_url_decode_set_search_encode_with_Url() {
+  nop(u.url(urlLong).setSearch(`one=two`).toString())
+})
+
+t.bench(function bench_url_decode_set_hash_encode_with_Url() {
+  nop(u.url(urlLong).setHash(`#one`).toString())
+})
 
 t.bench(function bench_pathname_with_URL() {nop(new URL(urlLong).pathname)})
-t.bench(function bench_pathname_with_url() {nop(u.url(urlLong).pathname)})
+t.bench(function bench_pathname_with_Url() {nop(u.url(urlLong).pathname)})
 t.bench(function bench_pathname_with_re() {nop(urlLong.match(u.RE_URL).groups.pathname)})
 
 const groups = urlLong.match(u.RE_URL).groups

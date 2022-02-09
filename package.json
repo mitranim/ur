@@ -1,6 +1,6 @@
 {
   "name": "@mitranim/ur",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "type": "module",
   "main": "./ur.mjs",
   "description": "Better URL and query implementation for JS. Like built-in URL but actually usable.",

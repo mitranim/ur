@@ -545,6 +545,105 @@ t.test(function test_Search() {
     for (const key of src.keys()) testEquiv(src.getAll(key), out.getAll(key))
   })
 
+  t.test(function test_toURLSearchParams() {
+    function test(str) {
+      const src = u.search(str)
+      const out = src.toURLSearchParams()
+      const exp = new URLSearchParams(str)
+
+      t.is(src.toString(), exp.toString())
+      t.is(out.toString(), exp.toString())
+      t.eq(out, exp)
+      t.eq([...out], [...exp])
+    }
+
+    test(``)
+    test(`one=two&one=three&two=four&two=five`)
+    test(`one+two=three+four++five`)
+    test(`%F0%9F%99%82=%F0%9F%98%81`)
+  })
+
+  t.test(function test_keys() {
+    function test(src, exp) {t.eq([...src.keys()], exp)}
+
+    test(u.search(), [])
+
+    test(
+      u.search(`one=two&one=three&four=five&four=six&seven=eight`),
+      [`one`, `four`, `seven`],
+    )
+
+    test(
+      u.search().set(`one two`, `three four  five`),
+      [`one two`],
+    )
+
+    test(
+      u.search(`%F0%9F%99%82=%F0%9F%98%81`),
+      [`🙂`],
+    )
+
+    // For comparison.
+    t.eq(
+      [...new URLSearchParams(`one=two&one=three&four=five&four=six&seven=eight`).keys()],
+      [`one`, `one`, `four`, `four`, `seven`],
+    )
+  })
+
+  t.test(function test_values() {
+    function test(src, exp) {t.eq([...src.values()], exp)}
+
+    test(u.search(), [])
+
+    test(
+      u.search(`one=two&one=three&four=five&four=six&seven=eight`),
+      [[`two`, `three`], [`five`, `six`], [`eight`]],
+    )
+
+    test(
+      u.search().set(`one two`, `three four  five`),
+      [[`three four  five`]],
+    )
+
+    test(
+      u.search(`%F0%9F%99%82=%F0%9F%98%81`),
+      [[`😁`]],
+    )
+
+    // For comparison.
+    t.eq(
+      [...new URLSearchParams(`one=two&one=three&four=five&four=six&seven=eight`).values()],
+      [`two`, `three`, `five`, `six`, `eight`],
+    )
+  })
+
+  t.test(function test_entries() {
+    function test(src, exp) {t.eq([...src.entries()], exp)}
+
+    test(u.search(), [])
+
+    test(
+      u.search(`one=two&one=three&four=five&four=six&seven=eight`),
+      [[`one`, [`two`, `three`]], [`four`, [`five`, `six`]], [`seven`, [`eight`]]],
+    )
+
+    test(
+      u.search().set(`one two`, `three four  five`),
+      [[`one two`, [`three four  five`]]],
+    )
+
+    test(
+      u.search(`%F0%9F%99%82=%F0%9F%98%81`),
+      [[`🙂`, [`😁`]]],
+    )
+
+    // For comparison.
+    t.eq(
+      [...new URLSearchParams(`one=two&one=three&four=five&four=six&seven=eight`).entries()],
+      [[`one`, `two`], [`one`, `three`], [`four`, `five`], [`four`, `six`], [`seven`, `eight`]],
+    )
+  })
+
   t.test(function test_toJSON() {
     t.is(u.search().toJSON(), null)
     t.is(u.search(`one=two`).toJSON(), `one=two`)

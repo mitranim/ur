@@ -27,7 +27,7 @@ URL and query implementation for JS. Like built-in [`URL`](https://developer.moz
   * Compatible with proxies and `Object.create`.
   * No "illegal invocation" exceptions.
 * No special cases for "known" URL schemes.
-* `Search` is a subclass of `Map` as it should be.
+* `Search` is `Map<string, string[]>` as it should be.
 * Automatically stringable as it should be.
 * Decent [test coverage](ur_test.mjs).
 * Decent [benchmark coverage](ur_bench.mjs).
@@ -80,20 +80,21 @@ Various issues:
   * Lacks support for patching and merging. Can be emulated by spreading `.entries()` into constructors which is bulky and inefficient.
   * Lacks various common-sense methods: `.setAll`, `.appendAll`, `.clear`.
   * Can't override `url.searchParams` with a custom subclass.
+  * Instead of being a normal `Map<string, string[]>`, its iteration methods are bizarre and made-up just for this. Nobody needs this weirdness. This just makes things slower and more surprising.
 * Many operations are much slower than possible.
 
 ## Perf
 
-* Carefully tuned using [benchmarks](ur_bench.mjs).
+* Checked with [benchmarks](ur_bench.mjs).
 * Uses various optimizations such as lazy query parsing, string caching, structural copying instead of reparsing.
-* Many operations seem to perform significantly better than corresponding built-ins in Deno 1.17 / V8 9.7+.
+* Most operations seem to perform significantly better than corresponding built-ins in Deno 1.17 / V8 9.7+.
 
 ## Usage
 
 In browsers and Deno, import by URL:
 
 ```js
-import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.4/ur.mjs'
+import * as u from 'https://cdn.jsdelivr.net/npm/@mitranim/ur@0.1.5/ur.mjs'
 ```
 
 When using Node or NPM-oriented bundlers like Esbuild:
@@ -323,6 +324,10 @@ class Search extends Map<string, string[]> {
   // Cheaper than reparsing.
   clone(): Search
 
+  // Converts to built-in search params.
+  // Note that `new URLSearchParams(<u.Search>)` should be avoided.
+  toURLSearchParams(): URLSearchParams
+
   // Same as `.toString` but prepends '?' when non-empty.
   toStringFull(): string
 
@@ -335,6 +340,33 @@ class Search extends Map<string, string[]> {
   // As a special case, empty url is considered null.
   toJSON(): string | null
 }
+```
+
+Warning: while `Search` is mostly compatible with `URLSearchParams`, it has different iteration methods. The iteration methods of `URLSearchParams` are something bizarre and made-up just for this type:
+
+```js
+[...new URLSearchParams(`one=two&one=three&four=five`)]
+// [[`one`, `two`], [`one`, `three`], [`four`, `five`]]
+```
+
+Meanwhile `Search` is `Map<string, string[]>`:
+
+```js
+[...new u.Search(`one=two&one=three&four=five`)]
+// [[`one`, [`two`, `three`]], [`four`, [`five`]]]
+```
+
+The following works properly:
+
+```js
+new u.Search(new URLSearchParams(`one=two&one=three&four=five`))
+new u.Search(`one=two&one=three&four=five`).toURLSearchParams()
+```
+
+But the following **does not work properly** and should be avoided:
+
+```js
+new URLSearchParams(new u.Search(`one=two&one=three&four=five`))
 ```
 
 ### Undocumented

@@ -176,6 +176,13 @@ export class Search extends Map {
   }
 
   clone() {return new this.constructor(this)}
+
+  toURLSearchParams() {
+    const out = new URLSearchParams()
+    for (let [key, val] of this.entries()) for (val of val) out.append(key, val)
+    return out
+  }
+
   toStringFull() {return optPre(this.toString(), `?`)}
   toString() {return this.restring().str}
   toJSON() {return this.toString() || null}
