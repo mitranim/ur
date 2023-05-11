@@ -1,3 +1,5 @@
+**Moved to https://github.com/mitranim/js**. This repo is usable but frozen.
+
 ## Overview
 
 URL and query implementation for JS. Like built-in [`URL`](https://developer.mozilla.org/en-US/docs/Web/API/URL) but actually usable. Features:
